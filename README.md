@@ -10,6 +10,8 @@
 This application integrates the [PDF.js](https://mozilla.github.io/pdf.js/) library into Nextcloud's Viewer.
 You can view PDF files as well as Adobe Illustrator files (.ai)
 
+To rename a PDF while previewing it, click its filename in the title, edit the name, and press Enter. Press Escape or click outside the field to cancel. This is available for signed-in users with rename permission. Save any PDF edits first; renaming reloads the preview and keeps the original file extension.
+
 ![PDF viewer](https://user-images.githubusercontent.com/59488153/189176433-2f6d97a1-b151-4099-84f4-d1446a007b8a.png)
 
 ### Enable Javascript execution in PDF files

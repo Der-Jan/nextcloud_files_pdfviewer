@@ -4,6 +4,7 @@
  */
 
 import { createApp, defineAsyncComponent, defineComponent, h } from 'vue'
+import { mountFilenameTitle } from './filenameTitle.js'
 
 const AsyncPdfView = defineAsyncComponent(() => import('./PDFView.vue'))
 
@@ -35,6 +36,12 @@ export default defineComponent({
 		return h('div', { style: { width: '100%', height: '100%', position: 'relative' } })
 	},
 	inheritAttrs: false,
+	watch: {
+		active() {
+			this.removeFilenameTitle?.()
+			this.removeFilenameTitle = mountFilenameTitle(this)
+		},
+	},
 	mounted() {
 		this.innerApp = createApp({
 			name: 'FilesPdfViewerProxy',
@@ -42,6 +49,7 @@ export default defineComponent({
 				return h(AsyncPdfView, {
 					// Hand down props as added by the viewers Mime mixin.
 					...this.$props,
+					ref: (view) => { this.pdfView = view },
 					davPath: this.davPath,
 					...toVue3Listeners(this.$listeners),
 					// doneLoading is provided by the viewers Mime mixin.
@@ -52,8 +60,12 @@ export default defineComponent({
 			},
 		})
 		this.innerApp.mount(this.$el)
+		this.$nextTick(() => {
+			this.removeFilenameTitle = mountFilenameTitle(this)
+		})
 	},
 	beforeDestroy() {
+		this.removeFilenameTitle?.()
 		this.innerApp.unmount()
 	},
 })

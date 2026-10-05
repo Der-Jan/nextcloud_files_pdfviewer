@@ -58,6 +58,7 @@ export default {
 			// Marked raw (see below): pdf.js's "eventBus" uses private class
 			// fields, which break behind a Vue reactive proxy.
 			PDFViewerApplication: null,
+			isSaving: false,
 		}
 	},
 
@@ -308,7 +309,14 @@ export default {
 			})
 		},
 
+		canRenameDocument() {
+			return !!this.PDFViewerApplication?.pdfDocument
+				&& !this.isSaving
+				&& this.getDownloadElement().hasAttribute('disabled')
+		},
+
 		handleSave() {
+			this.isSaving = true
 			const downloadElement = this.getDownloadElement()
 			downloadElement.setAttribute('disabled', 'disabled')
 			downloadElement.classList.add('icon-loading-small')
@@ -334,6 +342,7 @@ export default {
 				downloadElement.removeAttribute('disabled')
 				secondaryDownloadElement.removeAttribute('disabled')
 			}).finally(() => {
+				this.isSaving = false
 				downloadElement.classList.remove('icon-loading-small')
 				secondaryDownloadElement.classList.remove('icon-loading-small')
 			})
