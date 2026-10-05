@@ -23,3 +23,38 @@
 	top: 0;
 	position: absolute;
 }
+
+.files-pdfviewer__original-title {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	overflow: hidden;
+	clip-path: inset(50%);
+}
+
+#viewer .files-pdfviewer__title {
+	overflow: visible;
+	width: 100%;
+	padding-inline-start: 12px;
+	font-size: 16px;
+	min-width: 0;
+	pointer-events: auto;
+}
+
+.files-pdfviewer__filename {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font: inherit;
+	color: inherit;
+	background: transparent;
+	border: 0;
+	cursor: text;
+}
+
+.files-pdfviewer__rename input {
+	width: 100%;
+	min-width: 120px;
+	text-align: inherit;
+}
