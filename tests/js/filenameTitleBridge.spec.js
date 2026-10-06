@@ -4,6 +4,7 @@
  */
 import { showError } from '@nextcloud/dialogs'
 import { emit } from '@nextcloud/event-bus'
+import { Permission } from '@nextcloud/files'
 import { parsePermissions } from '@nextcloud/files/dav'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -26,7 +27,7 @@ let viewer
 beforeEach(() => {
 	vi.clearAllMocks()
 	document.body.innerHTML = '<div id="viewer"><header><h2 id="modal-title" data-v-modal="" class="modal-header__name">report.pdf</h2></header><iframe></iframe></div>'
-	const file = { fileid: 1, filename: '/report.pdf', basename: 'report.pdf', permissions: 'RDNVW', mime: 'application/pdf', size: 1234, lastmod: '2026-10-01T12:00:00Z' }
+	const file = { fileid: 1, filename: '/report.pdf', basename: 'report.pdf', permissions: 'RGDNVW', mime: 'application/pdf', size: 1234, lastmod: '2026-10-01T12:00:00Z' }
 	viewer = {
 		currentFile: file,
 		fileList: [{ ...file }],
@@ -66,7 +67,7 @@ describe('Viewer title bridge', () => {
 		expect(viewer.currentFile.filename).toBe('/new.pdf')
 		expect(viewer.fileList[0]).toEqual(viewer.currentFile)
 		const renamedNode = emit.mock.calls.find(([event]) => event === 'files:node:renamed')[1]
-		expect(renamedNode.permissions).toBe(parsePermissions('RDNVW'))
+		expect(renamedNode.permissions).toBe(parsePermissions('RGDNVW'))
 		expect(renamedNode.size).toBe(1234)
 		expect(renamedNode.mtime).toEqual(new Date('2026-10-01T12:00:00Z'))
 		expect(viewer.updateTitle).toHaveBeenCalledWith('new.pdf')
@@ -75,6 +76,17 @@ describe('Viewer title bridge', () => {
 		cleanup = undefined
 		expect(document.querySelector('.files-pdfviewer__title')).toBeNull()
 		expect(document.getElementById('modal-title').className).toBe('modal-header__name')
+	})
+
+	it.each(['isDavRessource', 'isDavResource'])('keeps renamed PDFs eligible for preview using %s', async (davProperty) => {
+		cleanup = mountFilenameTitle(loader)
+		await submit()
+		const { node } = emit.mock.calls.find(([event]) => event === 'files:node:moved')[1]
+		// Viewer checks DAV location, read permission, and MIME before offering preview.
+		expect(node[davProperty] && node.root?.startsWith('/files')).toBe(true)
+		expect(Boolean(node.permissions & Permission.READ)).toBe(true)
+		expect(node.mime).toBe('application/pdf')
+		expect(node.path).toBe('/new.pdf')
 	})
 
 	it('leaves metadata unchanged on failure and restores iframe interaction', async () => {

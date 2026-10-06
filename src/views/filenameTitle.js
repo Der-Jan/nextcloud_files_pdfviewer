@@ -65,6 +65,8 @@ export function mountFilenameTitle(loader) {
 					mtime: file.mtime || file.lastmod ? new Date(file.mtime || file.lastmod) : undefined,
 					attributes: { ...file, favorite: file.isFavorite ? 1 : 0 },
 				})
+				// Nextcloud 32's Viewer still checks the old DAV property spelling.
+				Object.defineProperty(node, 'isDavRessource', { get: () => node.isDavResource })
 				// Viewer clones the active item; update both it and its list.
 				for (const entry of viewer.fileList) {
 					if (entry.filename === oldFilename && entry.fileid === file.fileid) {
