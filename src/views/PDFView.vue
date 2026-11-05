@@ -53,6 +53,8 @@ export default {
 		},
 	},
 
+	emits: ['doneLoading'],
+
 	data() {
 		return {
 			// Marked raw (see below): pdf.js's "eventBus" uses private class
@@ -107,7 +109,7 @@ export default {
 
 	async mounted() {
 		if ((!this.isDownloadable && !this.allowViewWithoutDownload) || (this.hideDownload && this.isRichDocumentsAvailable)) {
-			this.$emit('done-loading')
+			this.$emit('doneLoading')
 
 			if (this.isRichDocumentsAvailable) {
 				logger.info('PDF file is not downloadable or has a hidden download, but "richdocuments" is available, so falling back to it')
@@ -131,7 +133,7 @@ export default {
 
 		document.addEventListener('webviewerloaded', this.handleWebviewerloaded)
 
-		this.$emit('done-loading')
+		this.$emit('doneLoading')
 		this.$nextTick(function() {
 			this.$el.focus()
 		})
